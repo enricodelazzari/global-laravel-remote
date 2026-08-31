@@ -34,13 +34,14 @@ return [
     |--------------------------------------------------------------------------
     |
     | This value determines the "environment" your application is currently
-    | running in. This may determine how you prefer to configure various
-    | services the application utilizes. This can be overridden using
-    | the global command line "--env" option when calling commands.
+    | running in. Anything other than "production" exposes Laravel Zero's
+    | development commands (`app:build`, `make:*`, `test`), which have no
+    | business being in an installed copy of this tool. Contributors who need
+    | them can set APP_ENV=development in a local .env file.
     |
     */
 
-    'env' => 'development',
+    'env' => env('APP_ENV', 'production'),
 
     /*
     |--------------------------------------------------------------------------
