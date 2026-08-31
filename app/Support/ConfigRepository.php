@@ -5,9 +5,6 @@ namespace App\Support;
 use Illuminate\Support\Arr;
 use Spatie\Valuestore\Valuestore;
 
-/**
- * @property-read ?array $hosts
- */
 class ConfigRepository
 {
     /**
@@ -21,15 +18,32 @@ class ConfigRepository
 
     protected Valuestore $valuestore;
 
-    public function __construct()
-    {
-        $path = "{$this->findHomeDirectory()}/.laravel-remote.json";
+    protected string $path;
 
-        $this->valuestore = Valuestore::make($path);
+    public function __construct(?string $path = null)
+    {
+        $this->path = $path ?: static::defaultPath();
+
+        $this->valuestore = Valuestore::make($this->path);
     }
 
     /**
-     * @return array<string, array<string, string>>
+     * The file the hosts are stored in. Anything reading or writing hosts goes
+     * through here, so pointing it somewhere else is enough to keep a process
+     * away from the hosts of whoever is running it.
+     */
+    public function path(): string
+    {
+        return $this->path;
+    }
+
+    public static function defaultPath(): string
+    {
+        return static::findHomeDirectory().'/.laravel-remote.json';
+    }
+
+    /**
+     * @return array<string, array<string, string|int>>
      */
     public function all(): array
     {
@@ -39,7 +53,7 @@ class ConfigRepository
     /**
      * The hosts as spatie/laravel-remote expects them.
      *
-     * @return array<string, array<string, string>>
+     * @return array<string, array<string, string|int>>
      */
     public function remoteHosts(): array
     {
@@ -50,7 +64,7 @@ class ConfigRepository
     }
 
     /**
-     * @return array<string, string>|null
+     * @return array<string, string|int>|null
      */
     public function getHost(string $name): ?array
     {
@@ -93,7 +107,7 @@ class ConfigRepository
         return $this->valuestore->get($name);
     }
 
-    protected function findHomeDirectory(): ?string
+    protected static function findHomeDirectory(): ?string
     {
         if (str_starts_with(PHP_OS, 'WIN')) {
             if (empty($_SERVER['HOMEDRIVE']) || empty($_SERVER['HOMEPATH'])) {

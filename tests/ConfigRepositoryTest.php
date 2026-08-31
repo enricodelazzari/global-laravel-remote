@@ -2,15 +2,18 @@
 
 use App\Support\ConfigRepository;
 
-it('can store and forget an host', function () {
-    $config = new ConfigRepository();
+it('stores the hosts outside of the real config file while testing', function () {
+    expect(hosts()->path())
+        ->not->toBe(ConfigRepository::defaultPath())
+        ->toStartWith(sys_get_temp_dir());
+});
 
-    $config->setHost('default', [
-        'host' => 'example.com',
-        'user' => 'root',
-        'port' => 22,
-        'path' => '/',
-    ]);
+it('falls back to the config file in the home directory', function () {
+    expect(ConfigRepository::defaultPath())->toEndWith('/.laravel-remote.json');
+});
+
+it('can store and forget an host', function () {
+    $config = createDefaultHost(['host' => 'example.com']);
 
     expect($config->default)->toBeArray();
     expect($config->default)
@@ -24,21 +27,10 @@ it('can store and forget an host', function () {
 });
 
 it('can flush all hosts', function () {
-    $config = new ConfigRepository();
+    $config = hosts();
 
-    $config->setHost('example1', [
-        'host' => 'example1.com',
-        'user' => 'root',
-        'port' => 22,
-        'path' => '/',
-    ]);
-
-    $config->setHost('example2', [
-        'host' => 'example2.com',
-        'user' => 'root',
-        'port' => 22,
-        'path' => '/',
-    ]);
+    $config->setHost('example1', ['host' => 'example1.com', 'user' => 'root', 'port' => 22, 'path' => '/']);
+    $config->setHost('example2', ['host' => 'example2.com', 'user' => 'root', 'port' => 22, 'path' => '/']);
 
     $config->flush();
 
@@ -46,14 +38,8 @@ it('can flush all hosts', function () {
 });
 
 it('can check if an host exists', function () {
-    $config = new ConfigRepository();
+    $config = createDefaultHost();
 
-    $config->setHost('default', [
-        'host' => 'example1.com',
-        'user' => 'root',
-        'port' => 22,
-        'path' => '/',
-    ]);
-
-    expect($config->default)->not->toBeNull();
+    expect($config->has('default'))->toBeTrue();
+    expect($config->has('missing'))->toBeFalse();
 });

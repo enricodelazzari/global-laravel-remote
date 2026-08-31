@@ -1,25 +1,9 @@
 <?php
 
 use App\Commands\GlobalRemoteCommand;
-use App\Support\ConfigRepository;
 use Mockery as m;
 use Spatie\Remote\Commands\RemoteCommand;
 use Spatie\Remote\Config\RemoteConfig;
-
-function createDefaultHost(array $overrides = []): ConfigRepository
-{
-    $config = new ConfigRepository;
-
-    $config->setHost('default', [
-        'host' => 'example.com',
-        'user' => 'root',
-        'port' => 22,
-        'path' => '/',
-        ...$overrides,
-    ]);
-
-    return $config;
-}
 
 function expectRemoteCommandToRun($mock, Closure $assertion): void
 {
