@@ -2,6 +2,7 @@
 
 namespace App\Support;
 
+use Illuminate\Support\Arr;
 use Spatie\Valuestore\Valuestore;
 
 /**
@@ -9,6 +10,15 @@ use Spatie\Valuestore\Valuestore;
  */
 class ConfigRepository
 {
+    /**
+     * Keys that only this application knows about. spatie/laravel-remote
+     * spreads the stored host as named arguments on its `HostConfig`, so
+     * these have to be stripped before handing the hosts over to it.
+     *
+     * @var array<int, string>
+     */
+    public const LOCAL_KEYS = ['jump'];
+
     protected Valuestore $valuestore;
 
     public function __construct()
@@ -24,6 +34,29 @@ class ConfigRepository
     public function all(): array
     {
         return $this->valuestore->all();
+    }
+
+    /**
+     * The hosts as spatie/laravel-remote expects them.
+     *
+     * @return array<string, array<string, string>>
+     */
+    public function remoteHosts(): array
+    {
+        return array_map(
+            fn (array $host) => Arr::except($host, self::LOCAL_KEYS),
+            $this->all()
+        );
+    }
+
+    /**
+     * @return array<string, string>|null
+     */
+    public function getHost(string $name): ?array
+    {
+        $host = $this->valuestore->get($name);
+
+        return is_array($host) ? $host : null;
     }
 
     /**

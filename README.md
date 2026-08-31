@@ -31,6 +31,19 @@ You can just execute the tool on your cli.
 global-laravel-remote '{cmd}'
 ```
 
+### Jump hosts
+
+When your server is only reachable through a bastion, pass `--jump`:
+
+```sh
+global-laravel-remote '{cmd}' --host=production --jump=forge@bastion.laravel.com
+```
+
+When creating a host you will be asked for a jump host as well. It gets stored
+alongside the host and is used for every command run against it, so you only
+need `--jump` to use a different bastion, and `--jump=''` to skip the stored
+one for a single command.
+
 ## Testing
 
 ```bash

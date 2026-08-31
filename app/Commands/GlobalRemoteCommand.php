@@ -10,7 +10,7 @@ use function Laravel\Prompts\text;
 
 class GlobalRemoteCommand extends Command
 {
-    public $signature = 'global-remote {rawCommand?} {--host=} {--raw} {--debug}';
+    public $signature = 'global-remote {rawCommand?} {--host=} {--jump=} {--raw} {--debug}';
 
     public $description = 'Execute commands on a remote server';
 
@@ -28,14 +28,20 @@ class GlobalRemoteCommand extends Command
             return self::FAILURE;
         }
 
-        config()->set('remote.hosts', $this->config->all());
+        config()->set('remote.hosts', $this->config->remoteHosts());
 
-        return $this->call(RemoteCommand::class, [
+        $arguments = [
             'rawCommand' => $command,
             '--host' => $host,
             '--raw' => $this->option('raw'),
             '--debug' => $this->option('debug'),
-        ]);
+        ];
+
+        if ($jump = $this->getJumpHost($host)) {
+            $arguments['--jump'] = $jump;
+        }
+
+        return $this->call(RemoteCommand::class, $arguments);
     }
 
     protected function getHost(): ?string
@@ -52,6 +58,24 @@ class GlobalRemoteCommand extends Command
         }
 
         return $host;
+    }
+
+    /**
+     * The `--jump` option wins over the jump host stored for the host,
+     * so a bastion can be used, or skipped, for a single command.
+     */
+    protected function getJumpHost(string $host): ?string
+    {
+        /** @var string|null */
+        $jump = $this->option('jump');
+
+        if ($jump !== null) {
+            return $jump === '' ? null : $jump;
+        }
+
+        $jump = $this->config->getHost($host)['jump'] ?? null;
+
+        return $jump ?: null;
     }
 
     protected function promptToCreate(?string $alias = null): ?string
@@ -123,12 +147,27 @@ class GlobalRemoteCommand extends Command
             required: true,
         );
 
-        $this->config->setHost($alias, [
+        /** @var string|null */
+        $jumpOption = $this->option('jump');
+
+        $jump = trim(text(
+            label: 'Jump host',
+            default: $jumpOption ?? '',
+            hint: 'Optional. Ex. forge@bastion.laravel.com',
+        ));
+
+        $config = [
             'host' => $host,
             'port' => (int) $port,
             'user' => $user,
             'path' => $path,
-        ]);
+        ];
+
+        if ($jump !== '') {
+            $config['jump'] = $jump;
+        }
+
+        $this->config->setHost($alias, $config);
 
         return $alias;
     }

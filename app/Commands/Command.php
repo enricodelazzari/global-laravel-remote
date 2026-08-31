@@ -15,7 +15,7 @@ abstract class Command extends BaseCommand
     }
 
     /**
-     * @param  array<string, string|int>  $arguments
+     * @param  array<string, string|int|bool|null>  $arguments
      */
     protected function runCommand($command, array $arguments, OutputInterface $output)
     {
