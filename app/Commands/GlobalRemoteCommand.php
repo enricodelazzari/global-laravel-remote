@@ -10,7 +10,7 @@ use function Laravel\Prompts\text;
 
 class GlobalRemoteCommand extends Command
 {
-    public $signature = 'global-remote {rawCommand?} {--host=} {--jump=} {--raw} {--debug}';
+    public $signature = 'run {rawCommand?} {--host=} {--jump=} {--raw} {--debug}';
 
     public $description = 'Execute commands on a remote server';
 

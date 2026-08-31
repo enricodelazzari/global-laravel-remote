@@ -1,9 +1,9 @@
 # Execute artisan commands on your server
 
-[![Latest Version on Packagist](https://img.shields.io/packagist/v/spatie/global-laravel-remote.svg?style=flat-square)](https://packagist.org/packages/spatie/global-laravel-remote)
-[![GitHub Tests Action Status](https://github.com/spatie/global-laravel-remote/actions/workflows/run-tests.yml/badge.svg)](https://github.com/spatie/global-laravel-remote/actions?query=workflow%3Arun-tests+branch%3Amain)
-[![GitHub Code Style Action Status](https://github.com/spatie/global-laravel-remote/actions/workflows/fix-php-code-style-issues.yml/badge.svg)](https://github.com/spatie/global-laravel-remote/actions?query=workflow%3A"Fix+PHP+code+style+issues"+branch%3Amain)
-[![Total Downloads](https://img.shields.io/packagist/dt/spatie/global-laravel-remote.svg?style=flat-square)](https://packagist.org/packages/spatie/global-laravel-remote)
+[![Latest Version on Packagist](https://img.shields.io/packagist/v/enricodelazzari/remote-cli.svg?style=flat-square)](https://packagist.org/packages/enricodelazzari/remote-cli)
+[![GitHub Tests Action Status](https://github.com/enricodelazzari/global-laravel-remote/actions/workflows/run-tests.yml/badge.svg)](https://github.com/enricodelazzari/global-laravel-remote/actions?query=workflow%3Arun-tests+branch%3Amain)
+[![GitHub Code Style Action Status](https://github.com/enricodelazzari/global-laravel-remote/actions/workflows/fix-php-code-style-issues.yml/badge.svg)](https://github.com/enricodelazzari/global-laravel-remote/actions?query=workflow%3A"Fix+PHP+code+style+issues"+branch%3Amain)
+[![Total Downloads](https://img.shields.io/packagist/dt/enricodelazzari/remote-cli.svg?style=flat-square)](https://packagist.org/packages/enricodelazzari/remote-cli)
 
 This tool runs artisan commands on a remote server over SSH. It is
 [spatie/laravel-remote](https://github.com/spatie/laravel-remote) as a standalone CLI: your servers
@@ -11,26 +11,21 @@ are kept in a file in your home directory instead of in a project's config, so y
 them from anywhere, without adding a dependency to the project itself.
 
 ```bash
-global-laravel-remote 'migrate --force' --host=production
+remote-cli 'migrate --force' --host=production
 ```
 
 Behind the scenes that connects over SSH, changes into the configured directory and runs
 `php artisan migrate --force`, streaming the output back to your terminal.
 
-## Support us
-
-[<img src="https://github-ads.s3.eu-central-1.amazonaws.com/global-laravel-remote.jpg?t=1" width="419px" />](https://spatie.be/github-ad-click/global-laravel-remote)
-
-We invest a lot of resources into creating [best in class open source packages](https://spatie.be/open-source). You can support us by [buying one of our paid products](https://spatie.be/open-source/support-us).
-
-We highly appreciate you sending us a postcard from your hometown, mentioning which of our package(s) you are using. You'll find our address on [our contact page](https://spatie.be/about-us). We publish all received postcards on [our virtual postcard wall](https://spatie.be/open-source/postcards).
+> This is a maintained fork of [spatie/global-laravel-remote](https://github.com/spatie/global-laravel-remote),
+> which has had no release since February 2024. See [Origins](#origins) for what changed and why.
 
 ## Installation
 
 You can install the tool via composer:
 
 ```bash
-composer global require spatie/global-laravel-remote
+composer global require enricodelazzari/remote-cli
 ```
 
 Make sure Composer's global `bin` directory is on your `PATH`. You can find it with
@@ -39,7 +34,7 @@ Make sure Composer's global `bin` directory is on your `PATH`. You can find it w
 Alternatively, run it without installing it at all with [cpx](https://github.com/laravel/cpx):
 
 ```bash
-cpx spatie/global-laravel-remote 'migrate --force'
+cpx enricodelazzari/remote-cli 'migrate --force'
 ```
 
 ## Usage
@@ -47,14 +42,14 @@ cpx spatie/global-laravel-remote 'migrate --force'
 Run a command by passing it as a single argument:
 
 ```bash
-global-laravel-remote 'migrate --force'
+remote-cli 'migrate --force'
 ```
 
 The first time you do this there are no hosts yet, so you'll be asked to create one. After that
 you'll be asked which of your hosts to run on. Pick one up front to skip the question:
 
 ```bash
-global-laravel-remote 'queue:restart' --host=production
+remote-cli 'queue:restart' --host=production
 ```
 
 Passing a `--host` you haven't created yet offers to create it under that alias.
@@ -71,15 +66,15 @@ Passing a `--host` you haven't created yet offers to create it under that alias.
 `--raw` is what you want for anything that isn't artisan:
 
 ```bash
-global-laravel-remote 'git pull && composer install --no-dev' --raw --host=production
+remote-cli 'git pull && composer install --no-dev' --raw --host=production
 ```
 
 ### Managing hosts
 
 ```bash
-global-laravel-remote hosts          # list what's configured, and where it's stored
-global-laravel-remote forget staging # remove one host
-global-laravel-remote flush          # remove all of them
+remote-cli hosts          # list what's configured, and where it's stored
+remote-cli forget staging # remove one host
+remote-cli flush          # remove all of them
 ```
 
 A host is made of an alias, a hostname, a port, an SSH user and the path to the codebase on the
@@ -94,12 +89,30 @@ run, and `--jump=''` skips it for a single run.
 
 ### Where the hosts are stored
 
-Hosts live in `.laravel-remote.json` in your home directory. Set `REMOTE_CONFIG_PATH` to keep them
+Hosts live in `.laravel-remote.json` in your home directory — the same file the original package
+used, so switching over keeps the hosts you already had. Set `REMOTE_CONFIG_PATH` to keep them
 somewhere else:
 
 ```bash
-REMOTE_CONFIG_PATH=~/work/hosts.json global-laravel-remote hosts
+REMOTE_CONFIG_PATH=~/work/hosts.json remote-cli hosts
 ```
+
+## Origins
+
+This is a fork of [spatie/global-laravel-remote](https://github.com/spatie/global-laravel-remote).
+That package was last released in February 2024 and its README was never filled in past the
+skeleton's placeholder text. The fork exists to keep the tool working on current PHP and Laravel,
+and it carries these changes:
+
+- Runs on PHP 8.3+ with Laravel Zero 13, instead of Laravel 10, which has reached end of life.
+- Fixes a bug where running the test suite deleted the hosts of whoever ran it.
+- Stops installed copies from exposing Laravel Zero's `make:*` and `app:build` commands.
+- Drops a stale 24 MB build artifact that shipped with every install.
+- Adds a `hosts` command, jump host support, and per-host PHP binary and SSH key.
+
+The stored hosts file is unchanged, so you can install this alongside or instead of the original.
+The command is named `remote-cli` rather than `global-laravel-remote`, so having both installed
+does not clash.
 
 ## Testing
 
@@ -121,8 +134,9 @@ Please review [our security policy](../../security/policy) on how to report secu
 
 ## Credits
 
-- [Francisco Madeira](https://github.com/xiCO2k)
-- [Freek Van der Herten](https://github.com/freekmurze)
+- [Enrico Delazzari](https://github.com/enricodelazzari)
+- [Francisco Madeira](https://github.com/xiCO2k) and [Freek Van der Herten](https://github.com/freekmurze),
+  who wrote the original package at [Spatie](https://spatie.be)
 - [All Contributors](../../contributors)
 
 ## License

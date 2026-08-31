@@ -27,6 +27,6 @@ trait CreatesApplication
 
     public static function configPath(): string
     {
-        return sys_get_temp_dir().'/global-laravel-remote-tests-'.getmypid().'.json';
+        return sys_get_temp_dir().'/remote-cli-tests-'.getmypid().'.json';
     }
 }

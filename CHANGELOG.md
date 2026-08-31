@@ -1,6 +1,37 @@
 # Changelog
 
-All notable changes to `global-laravel-remote` will be documented in this file.
+All notable changes to `remote-cli` will be documented in this file.
+
+The 0.0.x entries below are inherited from
+[spatie/global-laravel-remote](https://github.com/spatie/global-laravel-remote), the package this
+one was forked from. Their links point at that repository.
+
+## Unreleased
+
+### Changed
+
+- Renamed to `enricodelazzari/remote-cli`; the command is now `remote-cli`. The hosts file stays at
+  `~/.laravel-remote.json`, so nothing has to be reconfigured.
+- Requires PHP 8.3 and runs on Laravel Zero 13. The previous release was built on Laravel 10.
+- Installed copies no longer expose Laravel Zero's `app:build`, `make:*` and `test` commands.
+- `--version` reports the version Composer installed instead of shelling out to `git describe` on
+  every run.
+
+### Added
+
+- A `hosts` command, listing what is configured and where it is stored.
+- Jump host support, as a `--jump` option and as a per-host setting.
+- A per-host PHP binary and SSH private key, both already supported by spatie/laravel-remote but
+  never asked for.
+- `REMOTE_CONFIG_PATH`, to keep the hosts somewhere other than the home directory.
+
+### Fixed
+
+- Running the test suite no longer deletes the hosts of whoever runs it.
+
+### Removed
+
+- The 24 MB build artifact that was committed in March 2024 and shipped with every install.
 
 ## 0.0.4 - 2024-02-27
 

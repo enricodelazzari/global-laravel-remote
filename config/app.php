@@ -16,7 +16,7 @@ return [
     |
     */
 
-    'name' => 'Global Laravel Remote',
+    'name' => 'Remote CLI',
 
     /*
     |--------------------------------------------------------------------------
@@ -30,8 +30,8 @@ return [
     |
     */
 
-    'version' => InstalledVersions::isInstalled('spatie/global-laravel-remote')
-        ? (InstalledVersions::getPrettyVersion('spatie/global-laravel-remote') ?? 'unreleased')
+    'version' => InstalledVersions::isInstalled('enricodelazzari/remote-cli')
+        ? (InstalledVersions::getPrettyVersion('enricodelazzari/remote-cli') ?? 'unreleased')
         : app('git.version'),
 
     /*

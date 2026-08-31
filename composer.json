@@ -1,22 +1,32 @@
 {
-    "name": "spatie/global-laravel-remote",
-    "description": "Execute artisan commands on your server",
+    "name": "enricodelazzari/remote-cli",
+    "description": "Execute artisan commands on your server, from anywhere",
     "keywords": [
-        "spatie",
         "laravel",
-        "global-laravel-remote"
+        "artisan",
+        "remote",
+        "ssh",
+        "cli"
     ],
-    "homepage": "https://github.com/spatie/global-laravel-remote",
+    "homepage": "https://github.com/enricodelazzari/global-laravel-remote",
+    "support": {
+        "issues": "https://github.com/enricodelazzari/global-laravel-remote/issues",
+        "source": "https://github.com/enricodelazzari/global-laravel-remote"
+    },
     "license": "MIT",
     "authors": [
         {
-            "name": "Francisco Madeira",
+            "name": "Enrico Delazzari",
             "role": "Developer"
+        },
+        {
+            "name": "Francisco Madeira",
+            "role": "Developer of the original package"
         },
         {
             "name": "Freek Van der Herten",
             "email": "freek@spatie.be",
-            "role": "Developer"
+            "role": "Developer of the original package"
         }
     ],
     "require": {
@@ -59,5 +69,5 @@
     },
     "minimum-stability": "stable",
     "prefer-stable": true,
-    "bin": ["global-laravel-remote"]
+    "bin": ["remote-cli"]
 }

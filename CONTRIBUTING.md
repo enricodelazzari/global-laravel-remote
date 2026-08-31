@@ -1,12 +1,12 @@
 # Contributing
 
 Contributions are welcome and will be fully credited. We accept contributions via pull requests on
-[GitHub](https://github.com/spatie/global-laravel-remote).
+[GitHub](https://github.com/enricodelazzari/global-laravel-remote).
 
 ## Getting set up
 
 ```bash
-git clone https://github.com/spatie/global-laravel-remote
+git clone https://github.com/enricodelazzari/global-laravel-remote
 cd global-laravel-remote
 composer install
 ```
@@ -14,7 +14,7 @@ composer install
 You can run the tool straight from the checkout:
 
 ```bash
-php global-laravel-remote hosts
+php remote-cli hosts
 ```
 
 An installed copy runs in the production environment, which hides Laravel Zero's development
