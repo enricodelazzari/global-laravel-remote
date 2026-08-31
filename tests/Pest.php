@@ -1,8 +1,9 @@
 <?php
 
 use App\Support\ConfigRepository;
+use Tests\Support\TestCase;
 
-uses(\Tests\Support\TestCase::class)
+uses(TestCase::class)
     ->beforeEach(fn () => hosts()->flush())
     ->in(__DIR__);
 
