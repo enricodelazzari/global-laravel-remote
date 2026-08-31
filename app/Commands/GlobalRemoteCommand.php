@@ -143,32 +143,60 @@ class GlobalRemoteCommand extends Command
 
         $path = text(
             label: 'Path to the laravel codebase',
-            default: "/home/forge/{$host}",
+            default: "/home/{$user}/{$host}",
             required: true,
         );
 
-        /** @var string|null */
-        $jumpOption = $this->option('jump');
-
-        $jump = trim(text(
-            label: 'Jump host',
-            default: $jumpOption ?? '',
-            hint: 'Optional. Ex. forge@bastion.laravel.com',
-        ));
-
-        $config = [
+        $this->config->setHost($alias, [
             'host' => $host,
             'port' => (int) $port,
             'user' => $user,
             'path' => $path,
-        ];
-
-        if ($jump !== '') {
-            $config['jump'] = $jump;
-        }
-
-        $this->config->setHost($alias, $config);
+            ...$this->askForOptionalSettings(),
+        ]);
 
         return $alias;
+    }
+
+    /**
+     * What most hosts do not need: a PHP binary that is not simply `php`, a
+     * private key the ssh agent does not already hold, and a bastion to jump
+     * through. Asking for all three up front would make creating an ordinary
+     * host four prompts longer, so they live behind a confirmation.
+     *
+     * @return array<string, string>
+     */
+    protected function askForOptionalSettings(): array
+    {
+        /** @var string|null */
+        $jumpOption = $this->option('jump');
+
+        $confirmed = confirm(
+            label: 'Do you need a custom PHP binary, SSH key or jump host?',
+            default: $jumpOption !== null,
+        );
+
+        if (! $confirmed) {
+            return [];
+        }
+
+        $settings = [
+            'phpPath' => text(
+                label: 'Path to the PHP binary on the server',
+                default: 'php',
+                hint: 'Ex. /usr/bin/php8.3',
+            ),
+            'privateKeyPath' => text(
+                label: 'Path to the SSH private key',
+                hint: 'Optional. Leave empty to use the keys your ssh agent offers.',
+            ),
+            'jump' => text(
+                label: 'Jump host',
+                default: $jumpOption ?? '',
+                hint: 'Optional. Ex. forge@bastion.laravel.com',
+            ),
+        ];
+
+        return array_filter(array_map('trim', $settings), fn (string $value) => $value !== '');
     }
 }
