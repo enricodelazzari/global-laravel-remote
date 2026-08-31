@@ -1,5 +1,7 @@
 <?php
 
+use Composer\InstalledVersions;
+
 return [
 
     /*
@@ -21,12 +23,15 @@ return [
     |--------------------------------------------------------------------------
     |
     | This value determines the "version" your application is currently running
-    | in. You may want to follow the "Semantic Versioning" - Given a version
-    | number MAJOR.MINOR.PATCH when an update happens: https://semver.org.
+    | in. Composer knows which version it installed, which is what a user of
+    | the tool wants to see. Only fall back to asking git — a subprocess on
+    | every single run — when it does not, as in a source checkout.
     |
     */
 
-    'version' => app('git.version'),
+    'version' => InstalledVersions::isInstalled('spatie/global-laravel-remote')
+        ? (InstalledVersions::getPrettyVersion('spatie/global-laravel-remote') ?? 'unreleased')
+        : app('git.version'),
 
     /*
     |--------------------------------------------------------------------------
