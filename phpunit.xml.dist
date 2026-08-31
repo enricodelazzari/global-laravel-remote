@@ -9,6 +9,12 @@
             <directory>tests</directory>
         </testsuite>
     </testsuites>
+    <php>
+        <!-- Laravel only wires the console prompts up to the testing helpers,
+             and only treats the app as under test, when the environment says
+             so. Without this every prompt throws instead of being answered. -->
+        <env name="APP_ENV" value="testing"/>
+    </php>
     <source>
         <include>
             <directory>app</directory>

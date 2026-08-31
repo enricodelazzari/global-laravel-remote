@@ -7,4 +7,3 @@ parameters:
     - bootstrap
     - config
   level: 6
-  checkGenericClassInNonGenericObjectType: false
