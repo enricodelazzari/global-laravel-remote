@@ -21,10 +21,8 @@ function createDefaultHost(array $overrides = []): ConfigRepository
     return $config;
 }
 
-function mockRemoteCommand($test, Closure $assertion): void
+function expectRemoteCommandToRun($mock, Closure $assertion): void
 {
-    $test->swap(RemoteCommand::class, $mock = m::mock(RemoteCommand::class));
-
     $mock
         ->shouldIgnoreMissing()
         ->shouldReceive('run')
@@ -35,7 +33,9 @@ function mockRemoteCommand($test, Closure $assertion): void
 it('runs the remote command for an host', function () {
     createDefaultHost();
 
-    mockRemoteCommand($this, fn ($input) => $input->getParameterOption('rawCommand') === 'test' &&
+    $mock = $this->swap(RemoteCommand::class, m::mock(RemoteCommand::class));
+
+    expectRemoteCommandToRun($mock, fn ($input) => $input->getParameterOption('rawCommand') === 'test' &&
         $input->getParameterOption('--host') === 'default'
     );
 
@@ -48,7 +48,9 @@ it('runs the remote command for an host', function () {
 it('does not pass a jump host when none is given or stored', function () {
     createDefaultHost();
 
-    mockRemoteCommand($this, fn ($input) => ! $input->hasParameterOption('--jump'));
+    $mock = $this->swap(RemoteCommand::class, m::mock(RemoteCommand::class));
+
+    expectRemoteCommandToRun($mock, fn ($input) => ! $input->hasParameterOption('--jump'));
 
     $this->artisan(GlobalRemoteCommand::class, [
         'rawCommand' => 'test',
@@ -59,7 +61,9 @@ it('does not pass a jump host when none is given or stored', function () {
 it('passes the jump host option to the remote command', function () {
     createDefaultHost();
 
-    mockRemoteCommand($this, fn ($input) => $input->getParameterOption('--jump') === 'forge@bastion.com');
+    $mock = $this->swap(RemoteCommand::class, m::mock(RemoteCommand::class));
+
+    expectRemoteCommandToRun($mock, fn ($input) => $input->getParameterOption('--jump') === 'forge@bastion.com');
 
     $this->artisan(GlobalRemoteCommand::class, [
         'rawCommand' => 'test',
@@ -71,7 +75,9 @@ it('passes the jump host option to the remote command', function () {
 it('passes the jump host stored for the host', function () {
     createDefaultHost(['jump' => 'forge@bastion.com']);
 
-    mockRemoteCommand($this, fn ($input) => $input->getParameterOption('--jump') === 'forge@bastion.com');
+    $mock = $this->swap(RemoteCommand::class, m::mock(RemoteCommand::class));
+
+    expectRemoteCommandToRun($mock, fn ($input) => $input->getParameterOption('--jump') === 'forge@bastion.com');
 
     $this->artisan(GlobalRemoteCommand::class, [
         'rawCommand' => 'test',
@@ -82,7 +88,9 @@ it('passes the jump host stored for the host', function () {
 it('prefers the jump host option over the one stored for the host', function () {
     createDefaultHost(['jump' => 'forge@stored.com']);
 
-    mockRemoteCommand($this, fn ($input) => $input->getParameterOption('--jump') === 'forge@option.com');
+    $mock = $this->swap(RemoteCommand::class, m::mock(RemoteCommand::class));
+
+    expectRemoteCommandToRun($mock, fn ($input) => $input->getParameterOption('--jump') === 'forge@option.com');
 
     $this->artisan(GlobalRemoteCommand::class, [
         'rawCommand' => 'test',
@@ -91,10 +99,26 @@ it('prefers the jump host option over the one stored for the host', function () 
     ]);
 });
 
+it('skips the stored jump host when the option is empty', function () {
+    createDefaultHost(['jump' => 'forge@stored.com']);
+
+    $mock = $this->swap(RemoteCommand::class, m::mock(RemoteCommand::class));
+
+    expectRemoteCommandToRun($mock, fn ($input) => ! $input->hasParameterOption('--jump'));
+
+    $this->artisan(GlobalRemoteCommand::class, [
+        'rawCommand' => 'test',
+        '--host' => 'default',
+        '--jump' => '',
+    ]);
+});
+
 it('keeps the stored jump host out of the remote package config', function () {
     createDefaultHost(['jump' => 'forge@bastion.com']);
 
-    mockRemoteCommand($this, fn ($input) => true);
+    $mock = $this->swap(RemoteCommand::class, m::mock(RemoteCommand::class));
+
+    expectRemoteCommandToRun($mock, fn ($input) => true);
 
     $this->artisan(GlobalRemoteCommand::class, [
         'rawCommand' => 'test',
