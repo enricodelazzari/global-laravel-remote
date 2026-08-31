@@ -5,7 +5,17 @@
 [![GitHub Code Style Action Status](https://github.com/spatie/global-laravel-remote/actions/workflows/fix-php-code-style-issues.yml/badge.svg)](https://github.com/spatie/global-laravel-remote/actions?query=workflow%3A"Fix+PHP+code+style+issues"+branch%3Amain)
 [![Total Downloads](https://img.shields.io/packagist/dt/spatie/global-laravel-remote.svg?style=flat-square)](https://packagist.org/packages/spatie/global-laravel-remote)
 
-This is where your description should go. Limit it to a paragraph or two. Consider adding a small example.
+This tool runs artisan commands on a remote server over SSH. It is
+[spatie/laravel-remote](https://github.com/spatie/laravel-remote) as a standalone CLI: your servers
+are kept in a file in your home directory instead of in a project's config, so you can reach any of
+them from anywhere, without adding a dependency to the project itself.
+
+```bash
+global-laravel-remote 'migrate --force' --host=production
+```
+
+Behind the scenes that connects over SSH, changes into the configured directory and runs
+`php artisan migrate --force`, streaming the output back to your terminal.
 
 ## Support us
 
@@ -17,32 +27,79 @@ We highly appreciate you sending us a postcard from your hometown, mentioning wh
 
 ## Installation
 
-You can install the package via composer:
+You can install the tool via composer:
 
 ```bash
 composer global require spatie/global-laravel-remote
 ```
 
+Make sure Composer's global `bin` directory is on your `PATH`. You can find it with
+`composer global config bin-dir --absolute`.
+
+Alternatively, run it without installing it at all with [cpx](https://github.com/laravel/cpx):
+
+```bash
+cpx spatie/global-laravel-remote 'migrate --force'
+```
+
 ## Usage
 
-You can just execute the tool on your cli.
+Run a command by passing it as a single argument:
 
-```sh
-global-laravel-remote '{cmd}'
+```bash
+global-laravel-remote 'migrate --force'
 ```
 
-### Jump hosts
+The first time you do this there are no hosts yet, so you'll be asked to create one. After that
+you'll be asked which of your hosts to run on. Pick one up front to skip the question:
 
-When your server is only reachable through a bastion, pass `--jump`:
-
-```sh
-global-laravel-remote '{cmd}' --host=production --jump=forge@bastion.laravel.com
+```bash
+global-laravel-remote 'queue:restart' --host=production
 ```
 
-When creating a host you will be asked for a jump host as well. It gets stored
-alongside the host and is used for every command run against it, so you only
-need `--jump` to use a different bastion, and `--jump=''` to skip the stored
-one for a single command.
+Passing a `--host` you haven't created yet offers to create it under that alias.
+
+### Options
+
+| Option | What it does |
+| --- | --- |
+| `--host=` | The alias of the host to run on. You'll be asked to pick one when it's left out. |
+| `--raw` | Run the command as given, instead of prefixing it with `php artisan`. |
+| `--debug` | Print the SSH command that would run, and don't run it. |
+| `--jump=` | Connect through a bastion, e.g. `--jump=forge@bastion.laravel.com`. |
+
+`--raw` is what you want for anything that isn't artisan:
+
+```bash
+global-laravel-remote 'git pull && composer install --no-dev' --raw --host=production
+```
+
+### Managing hosts
+
+```bash
+global-laravel-remote hosts          # list what's configured, and where it's stored
+global-laravel-remote forget staging # remove one host
+global-laravel-remote flush          # remove all of them
+```
+
+A host is made of an alias, a hostname, a port, an SSH user and the path to the codebase on the
+server. When you create one you can also set three optional things:
+
+- **PHP binary** — for servers where artisan needs a specific PHP, e.g. `/usr/bin/php8.3`.
+- **SSH key** — the path to a private key, for when your agent doesn't already offer the right one.
+- **Jump host** — a bastion to connect through.
+
+A stored jump host is used for every command against that host. `--jump` overrides it for a single
+run, and `--jump=''` skips it for a single run.
+
+### Where the hosts are stored
+
+Hosts live in `.laravel-remote.json` in your home directory. Set `REMOTE_CONFIG_PATH` to keep them
+somewhere else:
+
+```bash
+REMOTE_CONFIG_PATH=~/work/hosts.json global-laravel-remote hosts
+```
 
 ## Testing
 
